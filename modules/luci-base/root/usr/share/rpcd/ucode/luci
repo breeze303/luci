@@ -581,7 +581,44 @@ const methods = {
 
 			return { result: ports };
 		}
+	},
+
+	getCPUBench: {
+		call: function() {
+			return { cpubench: readfile('/etc/bench.log') || '' };
+		}
+	},
+
+	getCoreTemp: {
+		call: function() {
+			let fd;
+			let result = {};
+
+			fd = popen('soc-status cpu_temp');
+			result.cpu = trim(fd.read('all'));
+			fd.close();
+
+			return result;
+		}
+	},
+
+	getCoreUsage: {
+		call: function() {
+			let fd;
+			let result = {};
+
+			fd = popen('soc-status cpu_usage');
+			result.cpu = trim(fd.read('all'));
+			fd.close();
+
+			fd = popen('soc-status nss_usage');
+			result.nss = trim(fd.read('all'));
+			fd.close();
+
+			return result;
+		}
 	}
+
 };
 
 return { luci: methods };

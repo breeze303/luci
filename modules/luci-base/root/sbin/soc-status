@@ -1,0 +1,27 @@
+#!/bin/sh
+# shellcheck disable=SC2155
+
+get_cpu_temp() {
+  local value="$(cat /sys/class/thermal/thermal_zone*/temp 2>/dev/null | sort -n | tail -1)"
+  [ -n "$value" ] || value="-1"
+  echo "$value"
+}
+
+get_cpu_usage() {
+  local value="$(top -b -n1 | awk '/^CPU/ { print 100-$8 }')"
+  [ -n "$value" ] || value="-1"
+  echo "$value"
+}
+
+case "$1" in
+  cpu_temp)
+    get_cpu_temp | awk '{ printf("%.1f\n", $1/1000) }'
+    ;;
+  cpu_usage)
+    get_cpu_usage
+    ;;
+  *)
+    echo "Usage: $0 {cpu_temp|cpu_usage}"
+    exit 1
+    ;;
+esac
